@@ -33,7 +33,7 @@ describe(`nc-news`,()=>{
     })
 
     describe("get-topics", ()=>{
-        test("404", ()=>{
+        test("404:  server cannot find the requested resource", ()=>{
             return request(app)
             .get("/api/bad-things")
             .expect(404)
