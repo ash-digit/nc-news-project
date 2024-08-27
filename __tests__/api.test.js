@@ -31,5 +31,18 @@ describe(`nc-news`,()=>{
             
         })
     })
+
+    describe("get-topics", ()=>{
+        test("404", ()=>{
+            return request(app)
+            .get("/api/bad-things")
+            .expect(404)
+            .then((response)=>{
+                expect(response.status).toBe(404)
+                expect(response.notFound).toBe(true)
+            })
+        })
+    })
+
    
 })
