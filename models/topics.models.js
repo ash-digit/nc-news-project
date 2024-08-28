@@ -1,5 +1,5 @@
 const db = require("../db/connection")
-
+const fs = require("fs/promises")
 
 exports.selectTopics = ()=>{
     return db.query(
@@ -12,3 +12,15 @@ exports.selectTopics = ()=>{
         return topics.rows;
     })
 }
+
+exports.fetchApi = ()=>{
+    return fs.readFile(`./endpoints.json`, "utf-8")
+    .then((respnse) =>{
+        return JSON.parse(respnse)
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+}
+
+

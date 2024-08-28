@@ -1,5 +1,6 @@
 const {
-    selectTopics
+    selectTopics,
+    fetchApi
 } = require("../models/topics.models")
 
 
@@ -12,4 +13,18 @@ const {
     .catch(next)
 }
 
+
+exports.getApi = (req, res, next) => {
+    const { invalidParam } = req.query;
+    if(invalidParam){
+        res.status(400).json({ msg: 'Bad Request' });
+    }
+
+    return fetchApi()
+    .then((response)=>{
+        res.status(200).send(response)
+        
+    })
+    .catch(next)
+}
 

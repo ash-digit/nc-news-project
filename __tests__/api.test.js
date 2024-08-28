@@ -43,6 +43,46 @@ describe(`nc-news`,()=>{
             })
         })
     })
+    describe("get-api", ()=>{
+        test("200: /api returns an JSON object containing all endpoints", ()=>{
+            return request(app)
+            .get("/api")
+            .expect(200)
+            .then((response)=>{
+                const apiEndpoints = response.body;
+
+                expect(typeof apiEndpoints).toBe('object');
+                expect(apiEndpoints).toHaveProperty("GET /api");
+                expect(apiEndpoints).toHaveProperty("GET /api/topics");
+                expect(apiEndpoints).toHaveProperty("GET /api/articles");
+                expect(apiEndpoints["GET /api"]).toEqual(
+                    expect.objectContaining({
+                        description: "serves up a json representation of all the available endpoints of the api"
+                    })
+                );
+
+            })
+        })
+    })
+    test("404: returns a 404 error for an invalid endpoint", () => {
+        return request(app)
+            .get("/api/invalid-endpoint")  
+            .expect(404)
+            .then((response) => {
+                expect(response.body).toEqual({
+                    msg: "Not Found"
+                });
+            });
+    });
+
+    test("400: /api returns a 400 error for invalid query parameters", () => {
+        return request(app)
+            .get("/api?invalidParam=true")  
+            .expect(400)
+            .then((response) => {
+                expect(response.body).toEqual({ msg: 'Bad Request' });
+            });
+    });
 
    
 })
