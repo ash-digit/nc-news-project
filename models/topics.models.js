@@ -6,21 +6,23 @@ exports.selectTopics = ()=>{
         `SELECT * FROM topics`
     )
     .then((topics) => {
-        if(topics.lenth === 0){
-            return Promise.reject({status: 404, msg: "404 Not Found"})
-        }
+        if(topics.rows.length === 0){
+            return Promise.reject( {status: 404, msg: "404 Not Found"})
+        }else{
         return topics.rows;
+        }
+    }).catch((err)=>{
+        throw err
     })
 }
-
 exports.fetchApi = ()=>{
     return fs.readFile(`./endpoints.json`, "utf-8")
     .then((respnse) =>{
-        return JSON.parse(respnse)
-    })
-    .catch((err)=>{
-        console.log(err)
+            return JSON.parse(respnse)
     })
 }
+
+
+
 
 

@@ -7,24 +7,22 @@ const {
  exports.getTopics = (req, res, next) => {
     
     return selectTopics()
-    .then((response) => {
-        res.status(200).send(response)
+    .then((topics) =>{
+        res.status(200).send(topics)
     })
-    .catch(next)
+    .catch((err)=>{
+        next(err)
+    })
 }
 
 
 exports.getApi = (req, res, next) => {
-    const { invalidParam } = req.query;
-    if(invalidParam){
-        res.status(400).json({ msg: 'Bad Request' });
-    }
-
     return fetchApi()
-    .then((response)=>{
-        res.status(200).send(response)
-        
+    .then((api)=>{
+        res.status(200).send(api)
     })
-    .catch(next)
+    .catch((err)=>{
+        next(err)
+    })
 }
 

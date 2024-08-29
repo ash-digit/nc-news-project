@@ -1,25 +1,27 @@
 const express = require("express");
 const {getTopics, getApi} = require("./controllers/topics.controller")
+const {getArticleById} = require("./controllers/articles.controller")
 const app = express();
-
-app.use(express.json());
+app.use(express.json())
 
 app.get("/api/topics", getTopics)
+
+
 app.get("/api", getApi)
 
-
-app.use((req, res, next) => {
-  res.status(404).send({ msg: "Not Found" });
-});
-
+app.get("/api/articles/:article_id", getArticleById)
 
 app.use((err, req, res, next) => {
-  if (err.msg === '400 Bad Request') {
-    res.status(400).send(err);
-  } else {
-    next(err);
+    console.log(err)
+  if (err.status === 404) {
+    
+      res.status(err.status).send({status: 404, msg: err.msg });
   }
 });
+
+
+
+
 
 
 

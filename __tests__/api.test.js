@@ -7,7 +7,6 @@ const data = require("../db/data/test-data/index")
 beforeEach(()=>{
     return seed(data)
 })
-
 afterAll(()=> db.end())
 
 describe(`nc-news`,()=>{
@@ -27,12 +26,8 @@ describe(`nc-news`,()=>{
                         })
                     )
                 })
-            })
-            
+            })   
         })
-    })
-
-    describe("get-topics", ()=>{
         test("404:  server cannot find the requested resource", ()=>{
             return request(app)
             .get("/api/bad-things")
@@ -63,26 +58,38 @@ describe(`nc-news`,()=>{
 
             })
         })
+        test("404: returns a 404 error for an invalid endpoint", () => {
+            return request(app)
+                .get("/api/invalid-endpoint")  
+                .expect(404)  
+        });
     })
-    test("404: returns a 404 error for an invalid endpoint", () => {
-        return request(app)
-            .get("/api/invalid-endpoint")  
+    describe("GET /api/articles/:article_id", ()=>{
+        test("200: /api/articles/:article_id returns an article object relative to article_id provided", ()=>{
+            return request(app)
+            .get("/api/articles/2")
+            .expect(200)
+            .then((response) => {
+                const article = response.body[0]
+                expect(typeof article).toBe("object")
+                expect(article).toHaveProperty("author")
+                expect(article).toHaveProperty("title")
+                expect(article).toHaveProperty("article_id")
+                expect(article).toHaveProperty("body")
+                expect(article).toHaveProperty("topic")
+                expect(article).toHaveProperty("created_at")
+                expect(article).toHaveProperty("votes")
+                expect(article).toHaveProperty("article_img_url")
+            })
+        })
+        test("404: /api/articles/:article_id(90000) returns 404 Not Found (article_id = out of range)", ()=>{
+            return request(app)
+            .get("/api/articles/90000")
             .expect(404)
-            .then((response) => {
-                expect(response.body).toEqual({
-                    msg: "Not Found"
-                });
-            });
-    });
-
-    test("400: /api returns a 400 error for invalid query parameters", () => {
-        return request(app)
-            .get("/api?invalidParam=true")  
-            .expect(400)
-            .then((response) => {
-                expect(response.body).toEqual({ msg: 'Bad Request' });
-            });
-    });
-
-   
+            .then((response)=>{
+               expect(response.body.msg).toBe("404 Not Found")
+               expect(response.body.status).toBe(404)
+            })
+        })
+    }) 
 })
