@@ -70,7 +70,7 @@ describe(`nc-news`,()=>{
             .get("/api/articles/2")
             .expect(200)
             .then((response) => {
-                const article = response.body[0]
+                const article = response.body
                 expect(typeof article).toBe("object")
                 expect(article).toHaveProperty("author")
                 expect(article).toHaveProperty("title")
@@ -80,16 +80,61 @@ describe(`nc-news`,()=>{
                 expect(article).toHaveProperty("created_at")
                 expect(article).toHaveProperty("votes")
                 expect(article).toHaveProperty("article_img_url")
+                expect(article.article_id).toBe(2)
             })
         })
-        test("404: /api/articles/:article_id(90000) returns 404 Not Found (article_id = out of range)", ()=>{
+        //===================================================================================
+        test("400: /api/articles/:article_id(five) returns 400 Bad Request => five != number", ()=>{
+            return request(app)
+            .get("/api/articles/five")
+            .expect(400)
+            .then(({body} = response)=>{
+               expect(body.msg).toBe("Bad Request")
+               expect(body.status).toBe(400)
+               expect(body.info).toBe("PSQL/QUERY/NOT-VALID")
+            })
+        })
+        test("404: /api/articles/:article_id(a None existent ID number in DB articles table) returns 404 Not Found (article_id = out of range)", ()=>{
             return request(app)
             .get("/api/articles/90000")
             .expect(404)
-            .then((response)=>{
-               expect(response.body.msg).toBe("404 Not Found")
-               expect(response.body.status).toBe(404)
+            .then(({body} = response)=>{
+               expect(body.msg).toBe("404 Not Found")
+               expect(body.status).toBe(404)
             })
         })
+    }) 
+
+    describe("GET /api/articles", ()=>{
+        test("200: /api/articles returns an array of articles with properties listed in the this test ", ()=>{
+            return request(app)
+            .get("/api/articles/?sortedBy=date&orderedBy=DESC")
+            .expect(200)
+            .then(({body} = response)=>{
+                body.forEach((article)=>{
+                    expect(typeof article).toBe("object")
+                    expect(article).toHaveProperty("author")
+                    expect(article).toHaveProperty("title")
+                    expect(article).toHaveProperty("article_id")
+                    expect(article).toHaveProperty("topic")
+                    expect(article).toHaveProperty("created_at")
+                    expect(article).toHaveProperty("votes")
+                    expect(article).toHaveProperty("article_img_url")
+                    expect(article).toHaveProperty("comment_count")
+                    expect(article).not.toHaveProperty("body")
+                })
+            })
+        })
+        test("400: /api/articles sends codeStatus: 400 => wrong queris", ()=>{
+            return request(app)
+            .get("/api/articles/?sortedBy=date&orderedBy=ESC")
+            .expect(400)
+            .then(({body} = response)=>{
+                expect(typeof body).toBe("object")
+                expect(body.status).toBe(400)
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+
     }) 
 })

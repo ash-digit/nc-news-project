@@ -1,4 +1,5 @@
-{"GET /api/articles/:article_id":{
+{
+  "GET /api/articles/:article_id":{
   "description": "serves up a json representation of one article relative to the ID provided"
 
   },

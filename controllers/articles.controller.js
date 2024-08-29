@@ -15,13 +15,13 @@ exports.getArticleById = (req, res, next) => {
     })
 }
 
-getArticles = () => {
-    return selectArticles()
+exports.getArticles = (req, res, next) => {
+    const{sortedBy, orderedBy} = req.query
+    return selectArticles(sortedBy, orderedBy)
     .then((articles) => {
-        console.log(articles)
+        res.status(200).send(articles)
     })
     .catch((err)=>{
-        console.log(err)
+        next(err)
     })
 }
-getArticles()

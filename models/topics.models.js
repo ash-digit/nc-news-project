@@ -7,7 +7,7 @@ exports.selectTopics = ()=>{
     )
     .then((topics) => {
         if(topics.rows.length === 0){
-            return Promise.reject( {status: 404, msg: "404 Not Found"})
+            return Promise.reject( {status: 404, msg: "404 Not Found", src: "selectTopics()"})
         }else{
         return topics.rows;
         }
