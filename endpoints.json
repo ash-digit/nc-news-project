@@ -1,4 +1,9 @@
-{ "PATCH /api/articles/:article_id": {
+{
+  "DELETE /api/articles/:comment_id":{
+    "describtion": "removes the comment with the provided ID status 204 and no content"
+  },
+  
+  "PATCH /api/articles/:article_id": {
   "describtion":"updates the votes in the article tabel and returns the updated article",
   "exampleResponse":{
       "article_id": 1,

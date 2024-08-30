@@ -1,9 +1,11 @@
+const { response } = require("../app")
 const articles = require("../db/data/test-data/articles")
 const {
     selectArticleById,
     selectArticles,
     selectCommentsByArticleId,
-    updatVoteById
+    updatVoteById,
+    deleteCommentById
 } = require("../models/articles.models")
 
 exports.getArticleById = (req, res, next) => {
@@ -42,16 +44,23 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.updateVoteArticle = (req, res, next) => {
     const {inc_votes} = req.body
     const {article_id} = req.params
-
-    
-        return updatVoteById(inc_votes, article_id)
+         return updatVoteById(inc_votes, article_id)
         .then((article) => {
         res.status(201).send(article)
         })
         .catch((err) => {
         next(err)
-        })
-    
-    
+        })   
 
+}
+
+exports.deleteComment = (req, res, next) => {
+    const {comment_id} = req.params
+    return deleteCommentById(comment_id)
+    .then(()=>{ 
+        res.status(204).send()
+    })
+    .catch((err)=>{
+        next(err)
+    })
 }

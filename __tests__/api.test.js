@@ -214,16 +214,42 @@ describe(`nc-news`,()=>{
                 expect(body.info).toBe("PSQL/QUERY/NOT-VALID")
             })
         })
-        test("406: /api/articles/valid ID returns 406 status code: 406: Not Acceptable because the req.body has a Non Numerical value", ()=>{
+        test("400: /api/articles/valid ID returns 406 status code: 406: Not Acceptable because the req.body has a Non Numerical value", ()=>{
             return request(app)
             .patch("/api/articles/1")
             .send({ inc_votes : "one" })
-            .expect(406)
+            .expect(400)
             .then(({body} = respons) => {
                  expect(typeof body).toBe("object")
-                 expect(body.status).toBe(406)
-                 expect(body.msg).toBe("Not Acceptable")
-                 expect(body.info).toBe("Non Numerical Insertion:TRUE")
+                 expect(body.status).toBe(400)
+                 expect(body.msg).toBe("Bad Request")
+            })
+        })
+    })
+    describe("DELETE /api/comments/:comment_id",()=>{
+        test("204: /api/articles/a valid ID(number) returns 204",()=>{
+            return request(app)
+            .delete("/api/comments/1")
+            .expect(204)
+        })
+        test("404: /api/articles/<--a non exsistent id in the comment table--> returns 404 status code: Not Found",()=>{
+            return request(app)
+            .delete("/api/comments/999")
+            .expect(404)
+            .then(({body} = respons) => {
+                expect(typeof body).toBe("object")
+                expect(body.status).toBe(404)
+                expect(body.msg).toBe("Not Found")
+            })
+        })
+        test("400: /api/articles/<--an invalid parameter (not a number)--> returns 400 status code: Bad Request: ",()=>{
+            return request(app)
+            .delete("/api/comments/one")
+            .expect(400)
+            .then(({body} = respons) => {
+                expect(typeof body).toBe("object")
+                expect(body.status).toBe(400)
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })

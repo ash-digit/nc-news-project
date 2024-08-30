@@ -90,28 +90,57 @@ exports.selectCommentsByArticleId = (article_id) => {
     });
 };
 
-exports.updatVoteById = (inc_votes, article_id) => {   
-  const query = `UPDATE articles
-        SET votes = votes + $1
-        WHERE article_id = $2
-        RETURNING *;`;
+exports.updatVoteById = (inc_votes, article_id) => {
+  const queryForChecking = `SELECT * FROM articles WHERE article_id = $1`;
   return db
-    .query(query, [inc_votes, article_id])
-    .then((article) => {
-      if (article.rows.length === 0) {
+    .query(queryForChecking, [article_id])
+    .then((respons) => {
+      if (respons.rows.length === 0) {
         return Promise.reject({
           status: 404,
           msg: "Not Found",
           src: "selectCommentsByArticleId(id)",
         });
+      } else {
+        const query = `UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING *;`;
+        return db
+          .query(query, [inc_votes, article_id])
+          .then((article) => {
+            return article.rows[0];
+          })
+          .catch(() => {
+            if (isNaN(inc_votes)) {
+              throw {
+                status: 400,
+                msg: "Bad Request",
+                info: "Non Numerical Insertion:TRUE",
+              };
+            }
+          });
       }
-      return article.rows[0];
     })
     .catch((err) => {
-        if( typeof inc_votes !== "number"){
-            throw {status: 406, msg: "Not Acceptable", info: "Non Numerical Insertion:TRUE" }
-        }else{
-            throw err
-        }
+      throw err;
+    });
+};
+
+exports.deleteCommentById = (comment_id) => {
+  const query = `DELETE FROM comments WHERE comment_id = $1 RETURNING *`;
+  return db
+    .query(query, [comment_id])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+      return;
     })
+    .catch((err) => {
+      if (isNaN(comment_id)) {
+        throw { status: 400, msg: "Bad Request" };
+      }
+      throw err;
+    });
 };
