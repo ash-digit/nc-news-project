@@ -2,7 +2,8 @@ const articles = require("../db/data/test-data/articles")
 const {
     selectArticleById,
     selectArticles,
-    selectCommentsByArticleId
+    selectCommentsByArticleId,
+    updatVoteById
 } = require("../models/articles.models")
 
 exports.getArticleById = (req, res, next) => {
@@ -36,4 +37,21 @@ exports.getCommentsByArticleId = (req, res, next) => {
     .catch((err)=>{
         next(err)
     })
+}
+
+exports.updateVoteArticle = (req, res, next) => {
+    const {inc_votes} = req.body
+    const {article_id} = req.params
+
+    
+        return updatVoteById(inc_votes, article_id)
+        .then((article) => {
+        res.status(201).send(article)
+        })
+        .catch((err) => {
+        next(err)
+        })
+    
+    
+
 }

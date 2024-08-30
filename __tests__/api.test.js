@@ -93,7 +93,7 @@ describe(`nc-news`,()=>{
                expect(body.info).toBe("PSQL/QUERY/NOT-VALID")
             })
         })
-        test("404: /api/articles/:article_id(a None existent ID number in DB articles table) returns 404 Not Found (article_id = out of range)", ()=>{
+        test("404: /api/articles/:article_id(a Nnon existent ID number in DB articles table) returns 404 Not Found (article_id = out of range)", ()=>{
             return request(app)
             .get("/api/articles/90000")
             .expect(404)
@@ -142,6 +142,7 @@ describe(`nc-news`,()=>{
             .expect(200)
             .then(({body} = response)=> {
                 expect(Array.isArray(body)).toBe(true)
+                expect(body.length).toBe(2)
                 body.forEach((comment) => {
                     expect(typeof comment).toBe("object")
                     expect(comment).toHaveProperty("comment_id")
@@ -174,6 +175,55 @@ describe(`nc-news`,()=>{
                 expect(body.msg).toBe("Bad Request")
                 expect(body.info).toBe("PSQL/QUERY/NOT-VALID")
 
+            })
+        })
+    })
+    describe("PATCH /api/articles/:article_id", ()=>{
+        test("201: updates the votes in the article tabel and returns the updated article", ()=>{
+            return request(app)
+            .patch("/api/articles/1")
+            .send({ inc_votes : 1 })
+            .expect(201)
+            .then(({body} = respons) =>{
+                expect(typeof body).toBe("object")
+                expect(body.article_id).toBe(1)
+                expect(body.votes).toBe(101)
+            })
+        })
+        test("404: /api/articles/<--a non exsistent id in the article table--> returns 404 status code: Not Found", ()=>{
+            return request(app)
+            .patch("/api/articles/999")
+            .send({ inc_votes : 1 })
+            .expect(404)
+            .then(({body} = respons) => {
+                expect(typeof body).toBe("object")
+                expect(body.status).toBe(404)
+                expect(body.msg).toBe("Not Found")
+            })
+        })
+
+        test("400: /api/articles/<--an invalid parameter (not a number)--> returns 400 status code: Bad Request", ()=>{
+            return request(app)
+            .patch("/api/articles/one")
+            .send({ inc_votes : 1 })
+            .expect(400)
+            .then(({body} = respons) => {
+                expect(typeof body).toBe("object")
+                expect(body.status).toBe(400)
+                expect(body.msg).toBe("Bad Request")
+                expect(body.info).toBe("PSQL/QUERY/NOT-VALID")
+            })
+        })
+        test("406: /api/articles/valid ID returns 406 status code: 406: Not Acceptable because the req.body has a Non Numerical value", ()=>{
+            return request(app)
+            .patch("/api/articles/1")
+            .send({ inc_votes : "one" })
+            .expect(406)
+            .then(({body} = respons) => {
+                 expect(typeof body).toBe("object")
+                 expect(body.status).toBe(406)
+                 expect(body.msg).toBe("Not Acceptable")
+                 expect(body.info).toBe("Non Numerical Insertion:TRUE")
             })
         })
     })
