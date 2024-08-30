@@ -1,10 +1,25 @@
 {
-  "GET /api/articles/:article_id":{
-  "description": "serves up a json representation of one article relative to the ID provided"
-
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves up an array json containing comments for the given article_id",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 233,
+          "votes": 3,
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "author": "weegembump",
+          "body": "Text from the article..",
+          "article_id": 2
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves up a json representation of one article relative to the ID provided"
   },
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api", "exampleResponse": {
+    "description": "serves up a json representation of all the available endpoints of the api",
+    "exampleResponse": {
       "article": [
         {
           "title": "Seafood substitutions are increasing",

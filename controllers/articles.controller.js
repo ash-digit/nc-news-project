@@ -1,7 +1,8 @@
 const articles = require("../db/data/test-data/articles")
 const {
     selectArticleById,
-    selectArticles
+    selectArticles,
+    selectCommentsByArticleId
 } = require("../models/articles.models")
 
 exports.getArticleById = (req, res, next) => {
@@ -20,6 +21,17 @@ exports.getArticles = (req, res, next) => {
     return selectArticles(sortedBy, orderedBy)
     .then((articles) => {
         res.status(200).send(articles)
+    })
+    .catch((err)=>{
+        next(err)
+    })
+}
+
+exports.getCommentsByArticleId = (req, res, next) => {
+    const{article_id} = req.params
+    return selectCommentsByArticleId(article_id)
+    .then((comments) => {
+        res.status(200).send(comments)
     })
     .catch((err)=>{
         next(err)

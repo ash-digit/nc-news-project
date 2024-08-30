@@ -83,7 +83,6 @@ describe(`nc-news`,()=>{
                 expect(article.article_id).toBe(2)
             })
         })
-        //===================================================================================
         test("400: /api/articles/:article_id(five) returns 400 Bad Request => five != number", ()=>{
             return request(app)
             .get("/api/articles/five")
@@ -135,6 +134,47 @@ describe(`nc-news`,()=>{
                 expect(body.msg).toBe("Bad Request")
             })
         })
-
     }) 
+    describe("GET /api/articles/articles_id/comments", ()=>{
+        test("200: /api/articles/<--an existing id in articles table-->/comments sends 200 status and an array of comments relative to the article ID", ()=>{
+            return request(app)
+            .get("/api/articles/3/comments")
+            .expect(200)
+            .then(({body} = response)=> {
+                expect(Array.isArray(body)).toBe(true)
+                body.forEach((comment) => {
+                    expect(typeof comment).toBe("object")
+                    expect(comment).toHaveProperty("comment_id")
+                    expect(comment).toHaveProperty("votes")
+                    expect(comment).toHaveProperty("created_at")
+                    expect(comment).toHaveProperty("author")
+                    expect(comment).toHaveProperty("body")
+                    expect(comment).toHaveProperty("article_id")
+                    expect(comment.article_id).toBe(3)
+                })
+            })
+        })
+        test("404: /api/articles/<--a none exsistent id in the article table-->/comments returns 404 status code: Not Found", ()=>{
+            return request(app)
+            .get("/api/articles/999/comments")
+            .expect(404)
+            .then(({body} = request) => {
+                expect(typeof body).toBe("object")
+                expect(body.status).toBe(404)
+                expect(body.msg).toBe("Not Found")
+            })
+        })
+        test("400: /api/articles/<--an invalid parameter (not a number)-->/comments returns 400 status code: Bad Request", ()=>{
+            return request(app)
+            .get("/api/articles/two/comments")
+            .expect(400)
+            .then(({body} = request) => {
+                expect(typeof body).toBe("object")
+                expect(body.status).toBe(400)
+                expect(body.msg).toBe("Bad Request")
+                expect(body.info).toBe("PSQL/QUERY/NOT-VALID")
+
+            })
+        })
+    })
 })
