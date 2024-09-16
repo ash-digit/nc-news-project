@@ -19,7 +19,7 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.selectArticles = (sortedBy, orderedBy) => {
+exports.selectArticles = (sortedBy = "date", orderedBy = "DESC") => {
   if (sortedBy === "date" && orderedBy === "DESC") {
     return db
       .query(
