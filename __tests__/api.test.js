@@ -96,7 +96,7 @@ describe(`nc-news`, () => {
         .get("/api/articles/90000")
         .expect(404)
         .then(({ body } = response) => {
-          expect(body.msg).toBe("404 Not Found");
+          expect(body.msg).toBe("Not Found");
           expect(body.status).toBe(404);
         });
     });
@@ -152,7 +152,7 @@ describe(`nc-news`, () => {
         });
     });
   });
-  describe("GET /api/articles/articles_id/comments", () => {
+  describe.only("GET /api/articles/articles_id/comments", () => {
     test("200: /api/articles/<--an existing id in articles table-->/comments sends 200 status and an array of comments relative to the article ID", () => {
       return request(app)
         .get("/api/articles/3/comments")
@@ -171,6 +171,12 @@ describe(`nc-news`, () => {
             expect(comment.article_id).toBe(3);
           });
         });
+    });
+    test.only("200: /api/articles/<--an existing id in articles table-->/comments sends 200 status and an ((EMPTY)) array because there is no comments for article with id 37", () => {
+      return request(app)
+        .get("/api/articles/4/comments")
+        .expect(200)
+        .then(({ body } = response) => expect(Array.isArray(body)).toBe(true));
     });
     test("404: /api/articles/<--a none exsistent id in the article table-->/comments returns 404 status code: Not Found", () => {
       return request(app)

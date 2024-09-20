@@ -7,7 +7,6 @@ exports.selectArticleById = (article_id) => {
       if (article.rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: "404 Not Found",
           src: "selectArticleById()",
         });
       } else {
@@ -57,7 +56,15 @@ exports.selectArticles = (sortedBy = "date", orderedBy = "DESC") => {
 };
 
 exports.selectCommentsByArticleId = (article_id) => {
-  const query = `
+  const articleQuery = `SELECT * FROM articles WHERE article_id=$1`;
+  return db.query(articleQuery, [article_id]).then((response) => {
+    if (response.rows.length === 0) {
+      // console.log(`article with id: ${article_id} does not exist!`);
+      return Promise.reject({
+        status: 404,
+      });
+    } else {
+      const query = `
         SELECT 
             comment_id,
             votes,
@@ -72,22 +79,17 @@ exports.selectCommentsByArticleId = (article_id) => {
         ORDER BY 
             created_at DESC;
     `;
-  return db
-    .query(query, [article_id])
-    .then((comments) => {
-      if (comments.rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "Not Found",
-          src: "selectCommentsByArticleId(id)",
+      return db
+        .query(query, [article_id])
+        .then((response) => {
+          return response.rows;
+        })
+        .catch((err) => {
+          console.log(err);
+          throw err;
         });
-      } else {
-        return comments.rows;
-      }
-    })
-    .catch((err) => {
-      throw err;
-    });
+    }
+  });
 };
 
 exports.updatVoteById = (inc_votes, article_id) => {
@@ -98,7 +100,6 @@ exports.updatVoteById = (inc_votes, article_id) => {
       if (respons.rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: "Not Found",
           src: "selectCommentsByArticleId(id)",
         });
       } else {
@@ -133,7 +134,7 @@ exports.deleteCommentById = (comment_id) => {
     .query(query, [comment_id])
     .then((result) => {
       if (result.rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not Found" });
+        return Promise.reject({ status: 404 });
       }
       return;
     })
@@ -144,3 +145,5 @@ exports.deleteCommentById = (comment_id) => {
       throw err;
     });
 };
+// selectCommentsByArticleId(38).then((res) => console.log(res));
+// selectArticleById(38).then((res) => console.log(res));
