@@ -10,7 +10,7 @@ beforeEach(() => {
 afterAll(() => db.end());
 
 describe(`nc-news`, () => {
-  describe("get-topics", () => {
+  describe("GET /topics", () => {
     test("200: method 'get' /api/topics returns an array of topic objects", () => {
       return request(app)
         .get("/api/topics")
@@ -38,7 +38,7 @@ describe(`nc-news`, () => {
         });
     });
   });
-  describe("get-api", () => {
+  describe("GET /api", () => {
     test("200: /api returns an JSON object containing all endpoints", () => {
       return request(app)
         .get("/api")
@@ -152,7 +152,7 @@ describe(`nc-news`, () => {
         });
     });
   });
-  describe.only("GET /api/articles/articles_id/comments", () => {
+  describe("GET /api/articles/articles_id/comments", () => {
     test("200: /api/articles/<--an existing id in articles table-->/comments sends 200 status and an array of comments relative to the article ID", () => {
       return request(app)
         .get("/api/articles/3/comments")
@@ -172,7 +172,7 @@ describe(`nc-news`, () => {
           });
         });
     });
-    test.only("200: /api/articles/<--an existing id in articles table-->/comments sends 200 status and an ((EMPTY)) array because there is no comments for article with id 37", () => {
+    test("200: /api/articles/<--an existing id in articles table-->/comments sends 200 status and an ((EMPTY)) array because there is no comments for article with id 37", () => {
       return request(app)
         .get("/api/articles/4/comments")
         .expect(200)
@@ -236,7 +236,7 @@ describe(`nc-news`, () => {
           expect(body.info).toBe("PSQL/QUERY/NOT-VALID");
         });
     });
-    test("400: /api/articles/valid ID returns 406 status code: 406: Not Acceptable because the req.body has a Non Numerical value", () => {
+    test("400: /api/articles/valid ID returns 400 status code: 400: Not Acceptable because the req.body has a Non Numerical value", () => {
       return request(app)
         .patch("/api/articles/1")
         .send({ inc_votes: "one" })
@@ -271,6 +271,45 @@ describe(`nc-news`, () => {
           expect(body.status).toBe(400);
           expect(body.msg).toBe("Bad Request");
         });
+    });
+  });
+  describe("POST /api/articles/:article_id", () => {
+    test("201: /api/articles/:article_id/comments: returns the created commnt", () => {
+      const comment = { author: "butter_bridge", body: "You Shall !Not Pass" };
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send(comment)
+        .expect(201)
+        .then(({ body } = respons) => {
+          console.log(body);
+          expect(typeof body).toBe("object");
+          expect(body.body).toBe("You Shall !Not Pass");
+          expect(body.article_id).toBe(3);
+          expect(body).toHaveProperty("votes");
+          expect(body).toHaveProperty("author");
+          expect(body).toHaveProperty("created_at");
+        });
+    });
+    test("404: /api/articles/:article_id/comments: <--a non exsistent id in the article table--> returns 404 status code: Not Found ", () => {
+      const comment = { author: "butter_bridge", body: "You Shall !Not Pass" };
+      return request(app)
+        .post("/api/articles/3333/comments")
+        .send(comment)
+        .expect(404);
+    });
+    test("404: /api/articles/:article_id/comments: <--a non exsistent username in the users tabele--> returns 404 status code: Not Found ", () => {
+      const comment = { author: "Dicaprio", body: "You Shall !Not Pass" };
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send(comment)
+        .expect(404);
+    });
+    test("400: /api/articles/:article_id/comments: <--an invalid parameter (not a number)--> returns 400 status code: Bad Request ", () => {
+      const comment = { author: "Dicaprio", body: "You Shall !Not Pass" };
+      return request(app)
+        .post("/api/articles/three/comments")
+        .send(comment)
+        .expect(400);
     });
   });
 });

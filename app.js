@@ -8,6 +8,7 @@ const {
   getCommentsByArticleId,
   updateVoteArticle,
   deleteComment,
+  postACommentForAnArticle,
 } = require("./controllers/articles.controller");
 
 const app = express();
@@ -21,6 +22,7 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.patch("/api/articles/:article_id", updateVoteArticle);
 app.delete("/api/comments/:comment_id", deleteComment);
+app.post("/api/articles/:article_id/comments", postACommentForAnArticle);
 
 app.use(errroHandler);
 

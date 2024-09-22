@@ -145,5 +145,35 @@ exports.deleteCommentById = (comment_id) => {
       throw err;
     });
 };
-// selectCommentsByArticleId(38).then((res) => console.log(res));
-// selectArticleById(38).then((res) => console.log(res));
+
+exports.postACommentByArticleId = (article_id, comment) => {
+  const { author, body } = comment;
+  if (isNaN(article_id)) {
+    throw { status: 400, msg: "Bad Request" };
+  }
+  const article_query = "SELECT * FROM articles WHERE article_id=$1";
+  return db.query(article_query, [article_id]).then((articleResult) => {
+    if (articleResult.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Article Not Found" });
+    } else {
+      const author_query = "SELECT * FROM users WHERE username=$1";
+      return db.query(author_query, [author]).then((authorResult) => {
+        if (authorResult.rows.length === 0) {
+          console.log(author, "does not exist!");
+          return Promise.reject({
+            status: 404,
+            msg: `Author: ${author} Not Found`,
+          });
+        } else {
+          const query =
+            "INSERT INTO comments (author, body, article_id) VALUES($1, $2, $3) RETURNING *";
+          return db
+            .query(query, [author, body, article_id])
+            .then((commentResult) => {
+              return commentResult.rows[0];
+            });
+        }
+      });
+    }
+  });
+};

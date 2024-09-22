@@ -6,6 +6,7 @@ const {
   selectCommentsByArticleId,
   updatVoteById,
   deleteCommentById,
+  postACommentByArticleId,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -61,5 +62,17 @@ exports.deleteComment = (req, res, next) => {
     })
     .catch((err) => {
       next(err);
+    });
+};
+
+exports.postACommentForAnArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  const { body } = req;
+  return postACommentByArticleId(article_id, body)
+    .then((comment) => {
+      res.status(201).send(comment);
+    })
+    .catch((error) => {
+      next(error);
     });
 };
