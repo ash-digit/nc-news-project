@@ -1,5 +1,3 @@
-const { response } = require("../app");
-const articles = require("../db/data/test-data/articles");
 const {
   selectArticleById,
   selectArticles,

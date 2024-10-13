@@ -101,7 +101,6 @@ describe(`nc-news`, () => {
         });
     });
   });
-
   describe("GET /api/articles", () => {
     test("200: /api/articles returns an array of articles with properties listed in the this test ", () => {
       return request(app)
@@ -281,7 +280,6 @@ describe(`nc-news`, () => {
         .send(comment)
         .expect(201)
         .then(({ body } = respons) => {
-          console.log(body);
           expect(typeof body).toBe("object");
           expect(body.body).toBe("You Shall !Not Pass");
           expect(body.article_id).toBe(3);
@@ -310,6 +308,21 @@ describe(`nc-news`, () => {
         .post("/api/articles/three/comments")
         .send(comment)
         .expect(400);
+    });
+  });
+  describe("GET /api/users", () => {
+    test("200: an array of objects with [{name:'...', username:'...', avatar_url:'...'}]", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body } = users) => {
+          expect(Array.isArray(body)).toBe(true);
+          body.forEach((user) => {
+            expect(user).toHaveProperty("name");
+            expect(user).toHaveProperty("username");
+            expect(user).toHaveProperty("avatar_url");
+          });
+        });
     });
   });
 });

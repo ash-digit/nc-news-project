@@ -10,6 +10,7 @@ const {
   deleteComment,
   postACommentForAnArticle,
 } = require("./controllers/articles.controller");
+const { getUsers } = require("./controllers/users.controller");
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.patch("/api/articles/:article_id", updateVoteArticle);
 app.delete("/api/comments/:comment_id", deleteComment);
 app.post("/api/articles/:article_id/comments", postACommentForAnArticle);
+app.get("/api/users", getUsers);
 
 app.use(errroHandler);
 
