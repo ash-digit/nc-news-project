@@ -1,21 +1,24 @@
 const db = require("../db/connection");
 
 exports.selectArticleById = (article_id) => {
-  return db
-    .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
-    .then((article) => {
-      if (article.rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          src: "selectArticleById()",
-        });
-      } else {
-        return article.rows[0];
-      }
-    })
-    .catch((err) => {
-      throw err;
-    });
+  if (isNaN(article_id)) {
+    throw { status: 400 };
+  } else {
+    return db
+      .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
+      .then((article) => {
+        if (article.rows.length === 0) {
+          return Promise.reject({
+            status: 404,
+          });
+        } else {
+          return article.rows[0];
+        }
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
 };
 
 exports.selectArticles = (sortedBy = "date", orderedBy = "DESC") => {
@@ -49,83 +52,87 @@ exports.selectArticles = (sortedBy = "date", orderedBy = "DESC") => {
   } else {
     throw {
       status: 400,
-      msg: "Bad Request",
-      src: "selectArticles(sortedBy, orderedBy)",
     };
   }
 };
 
 exports.selectCommentsByArticleId = (article_id) => {
-  const articleQuery = `SELECT * FROM articles WHERE article_id=$1`;
-  return db.query(articleQuery, [article_id]).then((response) => {
-    if (response.rows.length === 0) {
-      // console.log(`article with id: ${article_id} does not exist!`);
-      return Promise.reject({
-        status: 404,
-      });
-    } else {
-      const query = `
-        SELECT 
-            comment_id,
-            votes,
-            created_at,
-            author,
-            body,
-            article_id
-        FROM 
-            comments
-        WHERE 
-            article_id = $1
-        ORDER BY 
-            created_at DESC;
-    `;
-      return db
-        .query(query, [article_id])
-        .then((response) => {
-          return response.rows;
-        })
-        .catch((err) => {
-          console.log(err);
-          throw err;
+  if (isNaN(article_id)) {
+    throw { status: 400 };
+  } else {
+    const articleQuery = `SELECT * FROM articles WHERE article_id=$1`;
+    return db.query(articleQuery, [article_id]).then((response) => {
+      if (response.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
         });
-    }
-  });
+      } else {
+        const query = `
+          SELECT 
+              comment_id,
+              votes,
+              created_at,
+              author,
+              body,
+              article_id
+          FROM 
+              comments
+          WHERE 
+              article_id = $1
+          ORDER BY 
+              created_at DESC;
+      `;
+        return db
+          .query(query, [article_id])
+          .then((response) => {
+            return response.rows;
+          })
+          .catch((err) => {
+            console.log(err);
+            throw err;
+          });
+      }
+    });
+  }
 };
 
 exports.updatVoteById = (inc_votes, article_id) => {
-  const queryForChecking = `SELECT * FROM articles WHERE article_id = $1`;
-  return db
-    .query(queryForChecking, [article_id])
-    .then((respons) => {
-      if (respons.rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          src: "selectCommentsByArticleId(id)",
-        });
-      } else {
-        const query = `UPDATE articles
-        SET votes = votes + $1
-        WHERE article_id = $2
-        RETURNING *;`;
-        return db
-          .query(query, [inc_votes, article_id])
-          .then((article) => {
-            return article.rows[0];
-          })
-          .catch(() => {
-            if (isNaN(inc_votes)) {
-              throw {
-                status: 400,
-                msg: "Bad Request",
-                info: "Non Numerical Insertion:TRUE",
-              };
-            }
+  if (isNaN(article_id) || isNaN(inc_votes)) {
+    throw { status: 400 };
+  } else {
+    const queryForChecking = `SELECT * FROM articles WHERE article_id = $1`;
+    return db
+      .query(queryForChecking, [article_id])
+      .then((respons) => {
+        if (respons.rows.length === 0) {
+          return Promise.reject({
+            status: 404,
           });
-      }
-    })
-    .catch((err) => {
-      throw err;
-    });
+        } else {
+          const query = `UPDATE articles
+          SET votes = votes + $1
+          WHERE article_id = $2
+          RETURNING *;`;
+          return db
+            .query(query, [inc_votes, article_id])
+            .then((article) => {
+              return article.rows[0];
+            })
+            .catch(() => {
+              if (isNaN(inc_votes)) {
+                throw {
+                  status: 400,
+                  msg: "Bad Request",
+                  info: "Non Numerical Insertion:TRUE",
+                };
+              }
+            });
+        }
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
 };
 
 exports.deleteCommentById = (comment_id) => {
@@ -140,7 +147,7 @@ exports.deleteCommentById = (comment_id) => {
     })
     .catch((err) => {
       if (isNaN(comment_id)) {
-        throw { status: 400, msg: "Bad Request" };
+        throw { status: 400 };
       }
       throw err;
     });
@@ -149,12 +156,12 @@ exports.deleteCommentById = (comment_id) => {
 exports.postACommentByArticleId = (article_id, comment) => {
   const { author, body } = comment;
   if (isNaN(article_id)) {
-    throw { status: 400, msg: "Bad Request" };
+    throw { status: 400 };
   }
   const article_query = "SELECT * FROM articles WHERE article_id=$1";
   return db.query(article_query, [article_id]).then((articleResult) => {
     if (articleResult.rows.length === 0) {
-      return Promise.reject({ status: 404, msg: "Article Not Found" });
+      return Promise.reject({ status: 404 });
     } else {
       const author_query = "SELECT * FROM users WHERE username=$1";
       return db.query(author_query, [author]).then((authorResult) => {
@@ -162,7 +169,6 @@ exports.postACommentByArticleId = (article_id, comment) => {
           console.log(author, "does not exist!");
           return Promise.reject({
             status: 404,
-            msg: `Author: ${author} Not Found`,
           });
         } else {
           const query =

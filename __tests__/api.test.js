@@ -88,7 +88,6 @@ describe(`nc-news`, () => {
         .then(({ body } = response) => {
           expect(body.msg).toBe("Bad Request");
           expect(body.status).toBe(400);
-          expect(body.info).toBe("PSQL/QUERY/NOT-VALID");
         });
     });
     test("404: /api/articles/:article_id(a Nnon existent ID number in DB articles table) returns 404 Not Found (article_id = out of range)", () => {
@@ -195,7 +194,6 @@ describe(`nc-news`, () => {
           expect(typeof body).toBe("object");
           expect(body.status).toBe(400);
           expect(body.msg).toBe("Bad Request");
-          expect(body.info).toBe("PSQL/QUERY/NOT-VALID");
         });
     });
   });
@@ -232,7 +230,6 @@ describe(`nc-news`, () => {
           expect(typeof body).toBe("object");
           expect(body.status).toBe(400);
           expect(body.msg).toBe("Bad Request");
-          expect(body.info).toBe("PSQL/QUERY/NOT-VALID");
         });
     });
     test("400: /api/articles/valid ID returns 400 status code: 400: Not Acceptable because the req.body has a Non Numerical value", () => {

@@ -2,11 +2,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.status === 404) {
     res.status(404).send({ status: 404, msg: "Not Found" });
   } else if (err.status === 400) {
-    res.status(400).send({ status: 400, msg: err.msg });
-  } else if (err.status === undefined) {
-    res
-      .status(400)
-      .send({ status: 400, msg: "Bad Request", info: "PSQL/QUERY/NOT-VALID" });
+    res.status(400).send({ status: 400, msg: "Bad Request" });
   } else if (err.status === 406) {
     res.status(406).send(err);
   } else {
