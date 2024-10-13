@@ -28,7 +28,7 @@ describe(`nc-news`, () => {
           });
         });
     });
-    test("404:  server cannot find the requested resource", () => {
+    test("404:  server cannot find the requested resources", () => {
       return request(app)
         .get("/api/bad-things")
         .expect(404)
@@ -322,6 +322,15 @@ describe(`nc-news`, () => {
             expect(user).toHaveProperty("username");
             expect(user).toHaveProperty("avatar_url");
           });
+        });
+    });
+    test("404:  server cannot find the requested resources", () => {
+      return request(app)
+        .get("/api/bad-things")
+        .expect(404)
+        .then((response) => {
+          expect(response.status).toBe(404);
+          expect(response.notFound).toBe(true);
         });
     });
   });
