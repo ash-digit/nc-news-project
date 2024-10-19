@@ -178,6 +178,7 @@ describe(`nc-news`, () => {
             expect(article).toHaveProperty("comment_count");
             expect(article).not.toHaveProperty("body");
           });
+          expect(body[0].title).toBe("A");
           expect(body[body.length - 1].title).toBe("Z");
         });
     });
