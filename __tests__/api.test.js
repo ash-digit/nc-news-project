@@ -101,7 +101,7 @@ describe(`nc-news`, () => {
     });
   });
   describe("GET /api/articles", () => {
-    test("200: /api/articles returns an array of articles with properties listed in the this test ", () => {
+    test("200: /api/articles returns an array of articles with properties listed in the test ", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -120,9 +120,9 @@ describe(`nc-news`, () => {
           });
         });
     });
-    test("200: /api/articles returns an array of articles with properties listed in the this test ", () => {
+    test("200: /api/articles returns an array of articles with properties listed in the this test ordered by: created_at which is the default behaviour", () => {
       return request(app)
-        .get("/api/articles?sortedBy=date&orderedBy=DESC")
+        .get("/api/articles?sortedBy=created_at&orderedBy=DESC")
         .expect(200)
         .then(({ body } = response) => {
           body.forEach((article) => {
@@ -137,6 +137,48 @@ describe(`nc-news`, () => {
             expect(article).toHaveProperty("comment_count");
             expect(article).not.toHaveProperty("body");
           });
+        });
+    });
+    test("200: /api/articles returns an array of articles with properties listed in the this test ordered by: author which is not the default behaviour", () => {
+      return request(app)
+        .get("/api/articles?sortedBy=author&orderedBy=DESC")
+        .expect(200)
+        .then(({ body } = response) => {
+          body.forEach((article) => {
+            expect(typeof article).toBe("object");
+            expect(article).toHaveProperty("author");
+            expect(article).toHaveProperty("title");
+            expect(article).toHaveProperty("article_id");
+            expect(article).toHaveProperty("topic");
+            expect(article).toHaveProperty("created_at");
+            expect(article).toHaveProperty("votes");
+            expect(article).toHaveProperty("article_img_url");
+            expect(article).toHaveProperty("comment_count");
+            expect(article).not.toHaveProperty("body");
+          });
+          for (let i = 0; i < body.length - 1; i++) {
+            expect(body[i].author >= body[i + 1].author).toBe(true);
+          }
+        });
+    });
+    test("200: /api/articles returns an array of articles with properties listed in the test ordered by: title and sorted inr: ASC ", () => {
+      return request(app)
+        .get("/api/articles?sortedBy=title&orderedBy=ASC")
+        .expect(200)
+        .then(({ body } = response) => {
+          body.forEach((article) => {
+            expect(typeof article).toBe("object");
+            expect(article).toHaveProperty("author");
+            expect(article).toHaveProperty("title");
+            expect(article).toHaveProperty("article_id");
+            expect(article).toHaveProperty("topic");
+            expect(article).toHaveProperty("created_at");
+            expect(article).toHaveProperty("votes");
+            expect(article).toHaveProperty("article_img_url");
+            expect(article).toHaveProperty("comment_count");
+            expect(article).not.toHaveProperty("body");
+          });
+          expect(body[body.length - 1].title).toBe("Z");
         });
     });
     test("400: /api/articles sends codeStatus: 400 => wrong queris", () => {

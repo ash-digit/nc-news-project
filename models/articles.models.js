@@ -21,8 +21,8 @@ exports.selectArticleById = (article_id) => {
   }
 };
 
-exports.selectArticles = (sortedBy = "date", orderedBy = "DESC") => {
-  if (sortedBy === "date" && orderedBy === "DESC") {
+exports.selectArticles = (sortedBy = "created_at", orderedBy = "DESC") => {
+  if (sortedBy === "created_at" && orderedBy === "DESC") {
     return db
       .query(
         `SELECT 
@@ -36,12 +36,46 @@ exports.selectArticles = (sortedBy = "date", orderedBy = "DESC") => {
                 COUNT(comments.comment_id) AS comment_count
             FROM 
                 articles
-            LEFT JOIN 
+            LEFT OUTER JOIN 
                 comments ON comments.article_id = articles.article_id
             GROUP BY 
                 articles.article_id
             ORDER BY 
                 articles.created_at DESC`
+      )
+      .then((response) => {
+        return response.rows;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  } else if (
+    sortedBy === "author" ||
+    sortedBy === "title" ||
+    sortedBy === "article_id" ||
+    sortedBy === "topic" ||
+    sortedBy === "votes" ||
+    sortedBy === "article_img_url"
+  ) {
+    return db
+      .query(
+        `SELECT 
+              articles.author, 
+              articles.title, 
+              articles.article_id, 
+              articles.topic, 
+              articles.created_at, 
+              articles.votes, 
+              articles.article_img_url, 
+              COUNT(comments.comment_id) AS comment_count
+          FROM 
+              articles
+          LEFT OUTER JOIN 
+              comments ON comments.article_id = articles.article_id
+          GROUP BY 
+              articles.article_id
+          ORDER BY 
+              articles.${sortedBy} ${orderedBy}`
       )
       .then((response) => {
         return response.rows;
@@ -166,7 +200,6 @@ exports.postACommentByArticleId = (article_id, comment) => {
       const author_query = "SELECT * FROM users WHERE username=$1";
       return db.query(author_query, [author]).then((authorResult) => {
         if (authorResult.rows.length === 0) {
-          console.log(author, "does not exist!");
           return Promise.reject({
             status: 404,
           });
