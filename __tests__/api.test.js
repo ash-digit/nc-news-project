@@ -312,7 +312,7 @@ describe(`nc-news`, () => {
         });
     });
   });
-  describe("POST /api/articles/:article_id", () => {
+  describe("POST /api/articles/:article_id/comments", () => {
     test("201: /api/articles/:article_id/comments: returns the created commnt", () => {
       const comment = { author: "butter_bridge", body: "You Shall !Not Pass" };
       return request(app)
