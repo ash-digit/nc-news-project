@@ -1,3 +1,4 @@
+const { string } = require("pg-format");
 const db = require("../db/connection");
 
 exports.selectArticleById = (article_id) => {
@@ -20,7 +21,49 @@ exports.selectArticleById = (article_id) => {
       });
   }
 };
-
+const selectArticleByIdOrTopic = (dynamicPrameter) => {
+  if (!isNaN(dynamicPrameter)) {
+    const article_id = dynamicPrameter;
+    return db
+      .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+      .then((article) => {
+        if (article.rows.length === 0) {
+          return Promise.reject({
+            status: 404,
+          });
+        } else {
+          console.log(article.rows[0]);
+          return article.rows[0];
+        }
+      })
+      .catch((err) => {
+        throw err;
+      });
+  } else if (typeof dynamicPrameter === "string") {
+    const topic = dynamicPrameter;
+    return db
+      .query(
+        `SELECT *
+        FROM articles
+        JOIN topics ON articles.topic = topics.slug
+        WHERE articles.topic = $1`,
+        [topic]
+      )
+      .then((articles) => {
+        if (articles.rows.length === 0) {
+          return Promise.reject({
+            status: 404,
+          });
+        } else {
+          console.log(articles.rows);
+          return articles.rows;
+        }
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
+};
 exports.selectArticles = (sortedBy = "created_at", orderedBy = "DESC") => {
   if (sortedBy === "created_at" && orderedBy === "DESC") {
     return db
@@ -216,3 +259,4 @@ exports.postACommentByArticleId = (article_id, comment) => {
     }
   });
 };
+selectArticleByIdOrTopic(36);

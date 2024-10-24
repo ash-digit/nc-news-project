@@ -99,6 +99,24 @@ describe(`nc-news`, () => {
           expect(body.status).toBe(404);
         });
     });
+    test("200: /api/articles/:article_id returns an article object relative to article_id provided", () => {
+      return request(app)
+        .get("/api/articles/2")
+        .expect(200)
+        .then((response) => {
+          const article = response.body;
+          expect(typeof article).toBe("object");
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("body");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article.article_id).toBe(2);
+        });
+    });
   });
   describe("GET /api/articles", () => {
     test("200: /api/articles returns an array of articles with properties listed in the test ", () => {
