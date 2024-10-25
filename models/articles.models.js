@@ -21,7 +21,7 @@ exports.selectArticleById = (article_id) => {
       });
   }
 };
-const selectArticleByIdOrTopic = (dynamicPrameter) => {
+exports.selectArticleByIdOrTopic = (dynamicPrameter) => {
   if (!isNaN(dynamicPrameter)) {
     const article_id = dynamicPrameter;
     return db
@@ -32,7 +32,6 @@ const selectArticleByIdOrTopic = (dynamicPrameter) => {
             status: 404,
           });
         } else {
-          console.log(article.rows[0]);
           return article.rows[0];
         }
       })
@@ -52,10 +51,9 @@ const selectArticleByIdOrTopic = (dynamicPrameter) => {
       .then((articles) => {
         if (articles.rows.length === 0) {
           return Promise.reject({
-            status: 404,
+            status: 400,
           });
         } else {
-          console.log(articles.rows);
           return articles.rows;
         }
       })
@@ -259,4 +257,3 @@ exports.postACommentByArticleId = (article_id, comment) => {
     }
   });
 };
-selectArticleByIdOrTopic(36);

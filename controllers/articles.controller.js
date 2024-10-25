@@ -5,12 +5,12 @@ const {
   updatVoteById,
   deleteCommentById,
   postACommentByArticleId,
+  selectArticleByIdOrTopic,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
-  console.log(article_id);
-  return selectArticleById(article_id)
+  return selectArticleByIdOrTopic(article_id)
     .then((article) => {
       res.status(200).send(article);
     })

@@ -99,22 +99,35 @@ describe(`nc-news`, () => {
           expect(body.status).toBe(404);
         });
     });
-    test("200: /api/articles/:article_id returns an article object relative to article_id provided", () => {
+    test("200: /api/articles/:topic returns an array of articles based on a topic", () => {
       return request(app)
-        .get("/api/articles/2")
+        .get("/api/articles/mitch")
         .expect(200)
-        .then((response) => {
-          const article = response.body;
-          expect(typeof article).toBe("object");
-          expect(article).toHaveProperty("author");
-          expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("article_id");
-          expect(article).toHaveProperty("body");
-          expect(article).toHaveProperty("topic");
-          expect(article).toHaveProperty("created_at");
-          expect(article).toHaveProperty("votes");
-          expect(article).toHaveProperty("article_img_url");
-          expect(article.article_id).toBe(2);
+        .then(({ body } = response) => {
+          expect(Array.isArray(body)).toBe(true);
+          expect(body.length).toBe(12);
+          body.forEach((article) => {
+            expect(article).toHaveProperty("topic");
+            expect(article).toHaveProperty("slug");
+            expect(article).toHaveProperty("description");
+            expect(article).toHaveProperty("created_at");
+            expect(article).toHaveProperty("votes");
+            expect(article).toHaveProperty("title");
+            expect(article).toHaveProperty("article_id");
+            expect(article).toHaveProperty("body");
+            expect(article).toHaveProperty("author");
+
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+    test("400: /api/articles/:topic returns a 400 error for a none existing topic", () => {
+      return request(app)
+        .get("/api/articles/SuperCars")
+        .expect(400)
+        .then(({ body } = response) => {
+          expect(body.msg).toBe("Bad Request");
+          expect(body.status).toBe(400);
         });
     });
   });
