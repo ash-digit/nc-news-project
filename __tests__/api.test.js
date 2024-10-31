@@ -130,12 +130,58 @@ describe(`nc-news`, () => {
           expect(body.status).toBe(400);
         });
     });
-    test("200: /api/articles/:article_id?count=true", () => {
+    test("200: /api/articles/:article_id?count=true returns the count of all comments related to article_id ", () => {
       return request(app)
         .get("/api/articles/1?count=true")
         .expect(200)
         .then(({ body } = responds) => {
-          console.log(body);
+          expect(!Array.isArray(body) || typeof body === "object").toBe(true);
+          const { count } = body;
+          expect(typeof count).toBe("string");
+          expect(count).toBe("11");
+        });
+    });
+
+    test("200: /api/articles/:article_id?count=false returns the articl with realted columns included int the tests", () => {
+      return request(app)
+        .get("/api/articles/1?count=false")
+        .expect(200)
+        .then((response) => {
+          const article = response.body;
+          expect(typeof article).toBe("object");
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("body");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article.article_id).toBe(1);
+        });
+    });
+    test("200: /api/articles/:article_id?count=true returns 404: the article with article_id = 100000 doesn't exsist ", () => {
+      return request(app)
+        .get("/api/articles/100000?count=true")
+        .expect(404)
+        .then(({ body } = responds) => {});
+    });
+    test("400: /api/articles/SuperCars?count=true returns a 400 error for a none existing topic", () => {
+      return request(app)
+        .get("/api/articles/SuperCars?count=true")
+        .expect(400)
+        .then(({ body } = response) => {
+          expect(body.msg).toBe("Bad Request");
+          expect(body.status).toBe(400);
+        });
+    });
+    test("400: /api/articles/SuperCars?count=false returns a 400 error for a none existing topic", () => {
+      return request(app)
+        .get("/api/articles/SuperCars?count=false")
+        .expect(400)
+        .then(({ body } = response) => {
+          expect(body.msg).toBe("Bad Request");
+          expect(body.status).toBe(400);
         });
     });
   });

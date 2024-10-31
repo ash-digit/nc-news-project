@@ -11,11 +11,15 @@ const {
 
 exports.getArticleById = (req, res, next) => {
   if (req.query.count != undefined) {
-    if (req.query.count == "true") {
+    if (req.query.count === "true") {
       const { article_id } = req.params;
-      return getCommntCountByArticleId(article_id).then((commentCount) => {
-        res.status(200).send(commentCount);
-      });
+      return getCommntCountByArticleId(article_id)
+        .then((commentCount) => {
+          res.status(200).send(commentCount);
+        })
+        .catch((err) => {
+          next(err);
+        });
     } else {
       const { article_id } = req.params;
       return selectArticleByIdOrTopic(article_id)
