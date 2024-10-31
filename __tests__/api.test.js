@@ -278,6 +278,7 @@ describe(`nc-news`, () => {
         });
     });
   });
+
   describe("GET /api/articles/articles_id/comments", () => {
     test("200: /api/articles/<--an existing id in articles table-->/comments sends 200 status and an array of comments relative to the article ID", () => {
       return request(app)
