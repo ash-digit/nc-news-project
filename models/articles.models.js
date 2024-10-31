@@ -1,26 +1,27 @@
 const { string } = require("pg-format");
 const db = require("../db/connection");
 
-exports.selectArticleById = (article_id) => {
-  if (isNaN(article_id)) {
-    throw { status: 400 };
-  } else {
-    return db
-      .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
-      .then((article) => {
-        if (article.rows.length === 0) {
-          return Promise.reject({
-            status: 404,
-          });
-        } else {
-          return article.rows[0];
-        }
-      })
-      .catch((err) => {
-        throw err;
-      });
-  }
-};
+// exports.selectArticleById = (article_id) => {
+//   if (isNaN(article_id)) {
+//     throw { status: 400 };
+//   } else {
+//     return db
+//       .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
+//       .then((article) => {
+//         if (article.rows.length === 0) {
+//           return Promise.reject({
+//             status: 404,
+//           });
+//         } else {
+//           return article.rows[0];
+//         }
+//       })
+//       .catch((err) => {
+//         throw err;
+//       });
+//   }
+// };
+
 exports.selectArticleByIdOrTopic = (dynamicPrameter) => {
   if (!isNaN(dynamicPrameter)) {
     const article_id = dynamicPrameter;
@@ -163,7 +164,6 @@ exports.selectCommentsByArticleId = (article_id) => {
             return response.rows;
           })
           .catch((err) => {
-            console.log(err);
             throw err;
           });
       }
@@ -256,4 +256,35 @@ exports.postACommentByArticleId = (article_id, comment) => {
       });
     }
   });
+};
+
+exports.getCommntCountByArticleId = (article_id) => {
+  if (isNaN(article_id)) {
+    throw { status: 400 };
+  } else {
+    const articleQuery = `SELECT * FROM articles WHERE article_id=$1`;
+    return db.query(articleQuery, [article_id]).then((response) => {
+      if (response.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+        });
+      } else {
+        const query = `
+          SELECT COUNT(*)
+          FROM 
+          comments
+          WHERE 
+          article_id = $1 ;
+          `;
+        return db
+          .query(query, [article_id])
+          .then((response) => {
+            return response.rows[0];
+          })
+          .catch((err) => {
+            throw err;
+          });
+      }
+    });
+  }
 };

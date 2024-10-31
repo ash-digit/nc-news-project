@@ -130,6 +130,14 @@ describe(`nc-news`, () => {
           expect(body.status).toBe(400);
         });
     });
+    test("200: /api/articles/:article_id?count=true", () => {
+      return request(app)
+        .get("/api/articles/1?count=true")
+        .expect(200)
+        .then(({ body } = responds) => {
+          console.log(body);
+        });
+    });
   });
   describe("GET /api/articles", () => {
     test("200: /api/articles returns an array of articles with properties listed in the test ", () => {

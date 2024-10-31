@@ -21,10 +21,10 @@ app.get("/api", getApi);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+app.get("/api/users", getUsers);
 app.patch("/api/articles/:article_id", updateVoteArticle);
 app.delete("/api/comments/:comment_id", deleteComment);
 app.post("/api/articles/:article_id/comments", postACommentForAnArticle);
-app.get("/api/users", getUsers);
 
 app.use(errroHandler);
 
